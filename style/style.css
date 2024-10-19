@@ -311,5 +311,4 @@ body {
   top: 50%;                 /* 居中 */
   left: 50%;                /* 居中 */
   transform: translate(-50%, -50%);  /* 居中 */
-  opacity: 1;               /* 照片可见 */
 }

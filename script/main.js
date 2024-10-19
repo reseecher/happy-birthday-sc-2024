@@ -35,34 +35,35 @@ const fetchPhotos = (onComplete) => {
 
       let currentIndex = 0; // 当前显示的照片索引
 
+      const preloadImage = (src, callback) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => callback(img); // 图片加载完成后回调
+      };
+
       const showNextPhoto = () => {
         if (currentIndex < photoUrls.length) {
-          const img = document.createElement("img");
-          img.src = photoUrls[currentIndex];
-          img.classList.add("photo");
-          img.style.position = "absolute";
-          img.style.top = "50%";
-          img.style.left = "50%";
-          img.style.transform = "translate(-50%, -50%)"; // 确保居中
-          img.style.opacity = 1;  // 照片可见
+          // 预加载下一张图片
+          preloadImage(photoUrls[currentIndex], (img) => {
+            img.classList.add("photo");
+            img.style.position = "absolute";
+            img.style.top = "50%";
+            img.style.left = "50%";
+            img.style.transform = "translate(-50%, -50%)"; // 确保居中
 
-          // 将图片插入到 photo-gallery 容器中
-          photoGallery.innerHTML = ''; // 移除之前的图片
-          photoGallery.appendChild(img);
+            // 将图片插入到 photo-gallery 容器中
+            photoGallery.innerHTML = ''; // 移除之前的图片
+            photoGallery.appendChild(img);
 
-          currentIndex++; // 显示下一张照片
+            currentIndex++; // 准备展示下一张照片
 
-          // 设定时间，照片显示 2 秒后消失
-          setTimeout(() => {
-            img.style.opacity = 0; // 开始淡出
-
-            // 在 1 秒的淡出后，展示下一张照片
+            // 2 秒后显示下一张照片
             setTimeout(() => {
               showNextPhoto(); // 递归调用，显示下一张照片
-            }, 1000); // 1秒的淡出时间
-          }, 2000); // 照片显示 2 秒后淡出
+            }, 2000); // 照片显示 2 秒
+          });
         } else {
-          onComplete(); // 所有照片显示完毕后，继续执行其他动画
+          onComplete(); // 所有照片展示完毕后，继续执行其他动画
         }
       };
 
