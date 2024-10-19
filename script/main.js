@@ -33,39 +33,36 @@ const fetchPhotos = (onComplete) => {
       // 清空容器，避免重复
       photoGallery.innerHTML = "";
 
-      const tlPhotos = new TimelineMax({
-        onComplete: onComplete // 照片展示完毕后继续后续动画
-      });
+      let currentIndex = 0; // 当前显示的照片索引
 
-      // 确保每张照片只展示一次，避免重复
-      const shuffledPhotoUrls = photoUrls.sort(() => 0.5 - Math.random());
+      const showNextPhoto = () => {
+        if (currentIndex < photoUrls.length) {
+          const img = document.createElement("img");
+          img.src = photoUrls[currentIndex];
+          img.classList.add("photo");
+          img.style.position = "absolute";
+          img.style.top = "50%";
+          img.style.left = "50%";
+          img.style.transform = "translate(-50%, -50%)"; // 确保居中
+          img.style.opacity = 1;  // 照片可见
 
-      // 依次展示每张照片，使用随机位置和淡入淡出效果
-      shuffledPhotoUrls.forEach((photoUrl, index) => {
-        const img = document.createElement("img");
-        img.src = photoUrl;
-        img.classList.add("photo");
-        img.style.position = "absolute";
-        img.style.opacity = 0;  // 初始不可见
+          // 将图片插入到 photo-gallery 容器中
+          photoGallery.innerHTML = ''; // 移除之前的图片
+          photoGallery.appendChild(img);
 
-        // 将图片元素添加到 photo-gallery 容器中
-        photoGallery.appendChild(img);
+          currentIndex++; // 显示下一张照片
 
-        // 随机位置：让照片出现在屏幕的上方和中间区域
-        const randomTop = Math.random() * 30 + 20;  // 20% ~ 50% 的 top 值，屏幕上方中部
-        const randomLeft = Math.random() * 50 + 25; // 25% ~ 75% 的 left 值，屏幕中央偏左右
+          // 设定时间，照片显示 2 秒后消失
+          setTimeout(() => {
+            showNextPhoto(); // 递归调用，显示下一张照片
+          }, 500); // 2秒后切换照片
+        } else {
+          onComplete(); // 所有照片显示完毕后，继续执行其他动画
+        }
+      };
 
-        // 淡入、保持一段时间、淡出
-        tlPhotos
-          .set(img, {
-            top: `${randomTop}%`,
-            left: `${randomLeft}%`,
-            scale: Math.random() * 0.2 + 0.8 // 照片大小随机，保证不会太小（0.6 ~ 1.0 倍）
-          })
-          .to(img, 1, { opacity: 1, ease: Power2.easeInOut }) // 淡入
-          .to(img, 0.7, { opacity: 1, ease: Power2.easeInOut }, "+=1") // 保持一段时间
-          .to(img, 1, { opacity: 0, ease: Power2.easeInOut }, "-=0.5"); // 淡出，稍微有重叠
-      });
+      // 开始展示第一张照片
+      showNextPhoto();
     })
     .catch(error => {
       console.error("Error loading photos:", error);
