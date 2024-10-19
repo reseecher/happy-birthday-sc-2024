@@ -23,30 +23,30 @@ const fetchData = () => {
     });
 };
 
-const generateNonOverlappingPosition = (existingPositions, imgWidth, imgHeight) => {
-  let position;
-  let isOverlapping;
+const generateOptimalPosition = (existingPositions, imgWidth, imgHeight, viewportWidth, viewportHeight) => {
+  let bestPosition = null;
+  let smallestOverlap = Infinity;
 
-  do {
-    isOverlapping = false;
-    const top = Math.random() * (90 - imgHeight) + 5;  // 保证不超出视口范围
-    const left = Math.random() * (90 - imgWidth) + 5;  // 保证不超出视口范围
-    position = { top, left };
+  for (let i = 0; i < 100; i++) {  // 尝试生成多个位置，找到重叠最小的
+    const top = Math.random() * (viewportHeight - imgHeight); // 确保图片在视口范围内
+    const left = Math.random() * (viewportWidth - imgWidth);  // 确保图片在视口范围内
 
-    // 检查新生成的位置是否与现有图片的位置重叠
-    for (let i = 0; i < existingPositions.length; i++) {
-      const existingPos = existingPositions[i];
-      const dx = Math.abs(existingPos.left - left);
-      const dy = Math.abs(existingPos.top - top);
-
-      if (dx < imgWidth && dy < imgHeight) {
-        isOverlapping = true;
-        break;  // 位置重叠，重新生成位置
-      }
+    // 计算与现有图片的重叠面积
+    let totalOverlap = 0;
+    for (let pos of existingPositions) {
+      const dx = Math.max(0, Math.min(pos.left + pos.width, left + imgWidth) - Math.max(pos.left, left));
+      const dy = Math.max(0, Math.min(pos.top + pos.height, top + imgHeight) - Math.max(pos.top, top));
+      totalOverlap += dx * dy;  // 重叠面积
     }
-  } while (isOverlapping);  // 如果重叠，则继续生成位置
 
-  return position;
+    // 如果当前位置的重叠面积最小，则记录此位置
+    if (totalOverlap < smallestOverlap) {
+      smallestOverlap = totalOverlap;
+      bestPosition = { top, left };
+    }
+  }
+
+  return bestPosition;
 };
 
 // 读取并展示照片
@@ -56,14 +56,14 @@ const fetchPhotos = (onComplete) => {
     .then(data => {
       const photoUrls = data.photos; // 照片列表
       const photoGallery = document.querySelector(".photo-gallery"); // 照片展示容器
+      const viewportWidth = window.innerWidth; // 视口宽度
+      const viewportHeight = window.innerHeight; // 视口高度
 
       // 清空容器，避免重复
       photoGallery.innerHTML = "";
 
       let currentIndex = 0; // 当前显示的照片索引
       let lastDisplayTime = 0; // 记录最后一张照片展示的时间
-      const imgWidth = 15; // 定义图片的宽度百分比 (15% of viewport)
-      const imgHeight = 15; // 定义图片的高度百分比 (15% of viewport)
       const existingPositions = []; // 用于存储已使用的位置
 
       const showNextPhoto = () => {
@@ -77,17 +77,17 @@ const fetchPhotos = (onComplete) => {
             const delay = Math.max(1000 - timeSinceLastDisplay, 0); // 保证间隔至少为0.5秒
 
             setTimeout(() => {
-              // 生成不重叠的随机位置
-              const { top, left } = generateNonOverlappingPosition(existingPositions, imgWidth, imgHeight);
-              existingPositions.push({ top, left });
+              const imgWidth = img.naturalWidth;  // 获取图片的原始宽度
+              const imgHeight = img.naturalHeight; // 获取图片的原始高度
+
+              // 找到重叠最小的位置
+              const { top, left } = generateOptimalPosition(existingPositions, imgWidth, imgHeight, viewportWidth, viewportHeight);
+              existingPositions.push({ top, left, width: imgWidth, height: imgHeight }); // 记录图片的位置和尺寸
 
               img.classList.add("photo");
               img.style.position = "absolute";
-              img.style.top = `${top}%`; // 随机生成的top位置
-              img.style.left = `${left}%`; // 随机生成的left位置
-              img.style.width = `${imgWidth}vw`; // 固定宽度为15%视口宽度
-              img.style.height = `${imgHeight}vh`; // 固定高度为15%视口高度
-              img.style.transform = "translate(-50%, -50%)"; // 确保居中
+              img.style.top = `${top}px`; // 使用像素单位，保持图片原始大小
+              img.style.left = `${left}px`;
 
               // 将图片插入到 photo-gallery 容器中
               photoGallery.appendChild(img);
