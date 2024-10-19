@@ -58,7 +58,7 @@ const fetchPhotos = (onComplete) => {
       const photoGallery = document.querySelector(".photo-gallery"); // 照片展示容器
       const viewportWidth = window.innerWidth; // 视口宽度
       const viewportHeight = window.innerHeight; // 视口高度
-      const imgSize = 200; // 图片大小固定为200x200
+      const imgSize = 220; // 图片大小固定为200x200
 
       // 清空容器，避免重复
       photoGallery.innerHTML = "";
