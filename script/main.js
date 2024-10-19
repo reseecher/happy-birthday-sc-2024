@@ -80,7 +80,7 @@ const animationTimeline = () => {
       "-=1"
     )
     .from(
-      ".lydia-dp",
+      ".lydia-dp2",
       0.5,
       {
         scale: 3.5,
@@ -91,13 +91,42 @@ const animationTimeline = () => {
       },
       "-=2"
     )
-    .from(".hat", 0.5, {
+    .from(".hat2", 0.5, {
       x: -100,
       y: 350,
       rotation: -180,
       opacity: 0
     })
-    .to(".six", 0.5, {
+    .staggerFrom(
+      ".wish-hbd2 span",
+      0.7,
+      {
+        opacity: 0,
+        y: -50,
+        // scale: 0.3,
+        rotation: 150,
+        skewX: "30deg",
+        ease: Elastic.easeOut.config(1, 0.5)
+      },
+      0.1
+    )
+    .staggerFromTo(
+      ".wish-hbd2 span",
+      0.7,
+      {
+        scale: 1.4,
+        rotationY: 150
+      },
+      {
+        scale: 1,
+        rotationY: 0,
+        color: "#ff69b4",
+        ease: Expo.easeOut
+      },
+      0.1,
+      "party"
+    )
+    .to(".six2", 0.5, {
       opacity: 0,
       y: 30,
       zIndex: "-1"
