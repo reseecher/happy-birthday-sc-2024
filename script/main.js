@@ -15,14 +15,52 @@ const fetchData = () => {
           }
         }
 
-        // Check if the iteration is over
-        // Run amimation if so
-        if ( dataArr.length === dataArr.indexOf(customData) + 1 ) {
-          animationTimeline();
-        } 
+        // 检查是否已遍历到最后一个元素，准备开始动画
+        if (dataArr.length === dataArr.indexOf(customData) + 1) {
+          animationTimeline(); // 开始动画时间线
+        }
       });
     });
 };
+
+// 新增函数：读取照片并依次展示
+const fetchPhotos = () => {
+  fetch("photos.json") // 从 photos.json 文件中获取照片列表
+    .then(response => response.json())
+    .then(data => {
+      const photoGallery = document.querySelector(".photo-gallery"); // 获取照片展示容器
+      const photoUrls = data.photos; // 照片列表
+
+      // 清空照片容器，避免重复添加
+      photoGallery.innerHTML = "";
+
+      // 使用 GSAP 时间线来控制照片的依次展示
+      const tlPhotos = new TimelineMax();
+
+      photoUrls.forEach((photoUrl, index) => {
+        // 创建图片元素
+        const img = document.createElement("img");
+        img.src = photoUrl;
+        img.classList.add("photo");
+
+        // 初始状态设置为不可见
+        img.style.opacity = 0;
+
+        // 将图片元素添加到照片容器中
+        photoGallery.appendChild(img);
+
+        // 将动画添加到时间线
+        tlPhotos.to(img, 0.5, {
+          opacity: 1,       // 渐显
+          ease: Power2.easeInOut
+        }, "+=0.5"); // 每张照片之间间隔 0.5 秒
+      });
+    })
+    .catch(error => {
+      console.error("Error loading photos:", error);
+    });
+};
+
 
 // Animation Timeline
 const animationTimeline = () => {
@@ -131,6 +169,9 @@ const animationTimeline = () => {
       y: 30,
       zIndex: "-1"
     })
+    .add(() => {
+      fetchPhotos();
+    }, "+=1")
     .from(".three", 0.7, {
       opacity: 0,
       y: 10
