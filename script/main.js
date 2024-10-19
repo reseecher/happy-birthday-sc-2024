@@ -29,22 +29,34 @@ const fetchPhotos = (onComplete) => {
     .then(data => {
       const photoGallery = document.querySelector(".photo-gallery"); // 照片展示容器
       const photoUrls = data.photos; // 照片列表
+      const preloadedImages = []; // 用于存储预加载的图片
 
       // 清空容器，避免重复
       photoGallery.innerHTML = "";
 
-      let currentIndex = 0; // 当前显示的照片索引
+      // 预加载所有图片
+      let loadedCount = 0; // 记录已加载的图片数量
 
-      const preloadImage = (src, callback) => {
+      photoUrls.forEach((src, index) => {
         const img = new Image();
         img.src = src;
-        img.onload = () => callback(img); // 图片加载完成后回调
-      };
+        img.onload = () => {
+          preloadedImages[index] = img; // 存储已加载的图片
+          loadedCount++;
 
-      const showNextPhoto = () => {
-        if (currentIndex < photoUrls.length) {
-          // 预加载下一张图片
-          preloadImage(photoUrls[currentIndex], (img) => {
+          // 如果所有图片都加载完成，开始展示
+          if (loadedCount === photoUrls.length) {
+            showPhotos(preloadedImages); // 调用展示函数，开始展示图片
+          }
+        };
+      });
+
+      const showPhotos = (images) => {
+        let currentIndex = 0; // 当前显示的照片索引
+
+        const showNextPhoto = () => {
+          if (currentIndex < images.length) {
+            const img = images[currentIndex];
             img.classList.add("photo");
             img.style.position = "absolute";
             img.style.top = "50%";
@@ -60,19 +72,19 @@ const fetchPhotos = (onComplete) => {
             // 2 秒后显示下一张照片
             setTimeout(() => {
               showNextPhoto(); // 递归调用，显示下一张照片
-            }, 2000); // 照片显示 2 秒
-          });
-        } else {
-          // 清空最后一张图片，确保它消失
-          setTimeout(() => {
-            photoGallery.innerHTML = ''; // 清空容器，移除最后一张图片
-            onComplete(); // 所有照片显示完毕后，继续执行其他动画
-          }, 500); // 最后一张图片显示 2 秒后消失
-        }
-      };
+            }, 500); // 照片显示 2 秒
+          } else {
+            // 清空最后一张图片，确保它消失
+            setTimeout(() => {
+              photoGallery.innerHTML = ''; // 清空容器，移除最后一张图片
+              onComplete(); // 所有照片显示完毕后，继续执行其他动画
+            }, 2000); // 最后一张图片显示 2 秒后消失
+          }
+        };
 
-      // 开始展示第一张照片
-      showNextPhoto();
+        // 开始展示第一张照片
+        showNextPhoto();
+      };
     })
     .catch(error => {
       console.error("Error loading photos:", error);
