@@ -23,28 +23,6 @@ const fetchData = () => {
     });
 };
 
-let preloadedImages = []; // 用于存储预加载的图片
-
-// 预加载所有图片
-const preloadImages = (photoUrls, callback) => {
-  let loadedCount = 0; // 记录已加载的图片数量
-
-  photoUrls.forEach((src, index) => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      preloadedImages[index] = img; // 存储已加载的图片
-      loadedCount++;
-
-      // 当所有图片加载完成时，执行回调
-      if (loadedCount === photoUrls.length) {
-        callback(); // 所有图片加载完成后调用
-      }
-    };
-  });
-};
-
-// 随机生成位置
 const getRandomPosition = () => {
   const top = Math.random() * 80 + 10; // 随机生成10%到90%的top值
   const left = Math.random() * 80 + 10; // 随机生成10%到90%的left值
@@ -62,27 +40,49 @@ const fetchPhotos = (onComplete) => {
       // 清空容器，避免重复
       photoGallery.innerHTML = "";
 
-      // 开始异步预加载图片，同时继续执行其他动画
-      preloadImages(photoUrls, () => {
-        // 遍历所有图片，随机显示到屏幕的某个位置
-        preloadedImages.forEach((img) => {
-          const { top, left } = getRandomPosition();
-          img.classList.add("photo");
-          img.style.position = "absolute";
-          img.style.top = `${top}%`; // 随机位置
-          img.style.left = `${left}%`;
-          img.style.transform = "translate(-50%, -50%)"; // 确保居中
+      let currentIndex = 0; // 当前显示的照片索引
+      let lastDisplayTime = 0; // 记录最后一张照片展示的时间
 
-          // 将图片插入到 photo-gallery 容器中
-          photoGallery.appendChild(img);
-        });
+      const showNextPhoto = () => {
+        if (currentIndex < photoUrls.length) {
+          const img = new Image();
+          img.src = photoUrls[currentIndex];
+          
+          img.onload = () => {
+            const now = Date.now();
+            const timeSinceLastDisplay = now - lastDisplayTime;
 
-        // 所有图片显示完后，等待 2 秒再消失
-        setTimeout(() => {
-          photoGallery.innerHTML = ''; // 清空容器，移除所有图片
-          onComplete(); // 所有照片显示完毕后，继续执行其他动画
-        }, 2000); // 等待 2 秒后消失
-      });
+            const delay = Math.max(500 - timeSinceLastDisplay, 0); // 保证间隔至少为0.5秒
+
+            setTimeout(() => {
+              const { top, left } = getRandomPosition();
+              img.classList.add("photo");
+              img.style.position = "absolute";
+              img.style.top = `${top}%`; // 随机位置
+              img.style.left = `${left}%`;
+              img.style.transform = "translate(-50%, -50%)"; // 确保居中
+
+              // 将图片插入到 photo-gallery 容器中
+              photoGallery.appendChild(img);
+
+              currentIndex++; // 显示下一张照片
+              lastDisplayTime = Date.now(); // 更新最后展示时间
+
+              // 加载并展示下一张照片
+              showNextPhoto();
+            }, delay);
+          };
+        } else {
+          // 所有图片加载并显示完毕后，等待 2 秒再清空并继续动画
+          setTimeout(() => {
+            photoGallery.innerHTML = ''; // 清空容器，移除所有图片
+            onComplete(); // 所有照片显示完毕后，继续执行其他动画
+          }, 3000); // 等待 2 秒后消失
+        }
+      };
+
+      // 开始展示第一张照片
+      showNextPhoto();
     })
     .catch(error => {
       console.error("Error loading photos:", error);
