@@ -37,28 +37,34 @@ const fetchPhotos = (onComplete) => {
         onComplete: onComplete // 照片展示完毕后继续后续动画
       });
 
-      // 创建一个 img 元素用于循环展示每张照片
-      const img = document.createElement("img");
-      img.classList.add("photo");
-      img.style.position = "absolute";  // 设置绝对定位
-      img.style.opacity = 0;  // 初始不可见
-
-      // 插入图片元素到 photo-gallery 容器中
-      photoGallery.appendChild(img);
+      // 确保每张照片只展示一次，避免重复
+      const shuffledPhotoUrls = photoUrls.sort(() => 0.5 - Math.random());
 
       // 依次展示每张照片，使用随机位置和淡入淡出效果
-      photoUrls.forEach((photoUrl, index) => {
-        const randomTop = Math.random() * 80;  // 随机 top 值，保证在可视区域内
-        const randomLeft = Math.random() * 80; // 随机 left 值
+      shuffledPhotoUrls.forEach((photoUrl, index) => {
+        const img = document.createElement("img");
+        img.src = photoUrl;
+        img.classList.add("photo");
+        img.style.position = "absolute";
+        img.style.opacity = 0;  // 初始不可见
 
+        // 将图片元素添加到 photo-gallery 容器中
+        photoGallery.appendChild(img);
+
+        // 随机位置：让照片出现在屏幕的上方和中间区域
+        const randomTop = Math.random() * 30 + 20;  // 20% ~ 50% 的 top 值，屏幕上方中部
+        const randomLeft = Math.random() * 50 + 25; // 25% ~ 75% 的 left 值，屏幕中央偏左右
+
+        // 淡入、保持一段时间、淡出
         tlPhotos
           .set(img, {
-            attr: { src: photoUrl }, // 设置图片路径
-            top: `${randomTop}%`,    // 设置随机的 top 位置
-            left: `${randomLeft}%`   // 设置随机的 left 位置
+            top: `${randomTop}%`,
+            left: `${randomLeft}%`,
+            scale: Math.random() * 0.2 + 0.8 // 照片大小随机，保证不会太小（0.6 ~ 1.0 倍）
           })
-          .to(img, 0.7, { opacity: 1, ease: Power2.easeInOut }) // 淡入，时间缩短为0.7秒
-          .to(img, 0.7, { opacity: 0, ease: Power2.easeInOut }, "-=0.5"); // 淡出，重叠0.5秒
+          .to(img, 1, { opacity: 1, ease: Power2.easeInOut }) // 淡入
+          .to(img, 0.7, { opacity: 1, ease: Power2.easeInOut }, "+=1") // 保持一段时间
+          .to(img, 1, { opacity: 0, ease: Power2.easeInOut }, "-=0.5"); // 淡出，稍微有重叠
       });
     })
     .catch(error => {
@@ -122,6 +128,12 @@ const animationTimeline = () => {
       },
       "-=1"
     )
+    .add(() => {
+      fetchPhotos(() => {
+        tl.resume(); // 照片展示结束后恢复动画时间线
+      });
+      tl.pause(); // 在照片展示期间暂停时间线
+    }, "+=1")
     .from(".three", 0.7, {
       opacity: 0,
       y: 10
@@ -171,12 +183,6 @@ const animationTimeline = () => {
       0.2,
       "+=1"
     )
-    .add(() => {
-      fetchPhotos(() => {
-        tl.resume(); // 照片展示结束后恢复动画时间线
-      });
-      tl.pause(); // 在照片展示期间暂停时间线
-    }, "+=1")
     .staggerFromTo(
       ".baloons img",
       2.5,
