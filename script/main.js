@@ -23,6 +23,7 @@ const fetchData = () => {
     });
 };
 
+// 随机生成位置并计算重叠面积最小的区域
 const generateOptimalPosition = (existingPositions, imgWidth, imgHeight, viewportWidth, viewportHeight) => {
   let bestPosition = null;
   let smallestOverlap = Infinity;
@@ -74,12 +75,17 @@ const fetchPhotos = (onComplete) => {
           img.onload = () => {
             const now = Date.now();
             const timeSinceLastDisplay = now - lastDisplayTime;
-            const delay = Math.max(1000 - timeSinceLastDisplay, 0); // 保证间隔至少为0.5秒
+            const delay = Math.max(500 - timeSinceLastDisplay, 0); // 保证间隔至少为0.5秒
 
             setTimeout(() => {
-              const imgWidth = img.naturalWidth;  // 获取图片的原始宽度
-              const imgHeight = img.naturalHeight; // 获取图片的原始高度
+              // 获取图片的原始宽高
+              const imgWidth = img.naturalWidth;
+              const imgHeight = img.naturalHeight;
 
+              // 限制图片大小，但保持长宽比
+              img.style.maxWidth = '300px';
+              img.style.maxHeight = '300px';
+              
               // 找到重叠最小的位置
               const { top, left } = generateOptimalPosition(existingPositions, imgWidth, imgHeight, viewportWidth, viewportHeight);
               existingPositions.push({ top, left, width: imgWidth, height: imgHeight }); // 记录图片的位置和尺寸
@@ -88,6 +94,7 @@ const fetchPhotos = (onComplete) => {
               img.style.position = "absolute";
               img.style.top = `${top}px`; // 使用像素单位，保持图片原始大小
               img.style.left = `${left}px`;
+              img.style.objectFit = "contain"; // 保持长宽比
 
               // 将图片插入到 photo-gallery 容器中
               photoGallery.appendChild(img);
