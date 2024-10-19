@@ -28,7 +28,7 @@ const generateOptimalPosition = (existingPositions, imgSize, viewportWidth, view
   let smallestOverlap = Infinity;
 
   for (let i = 0; i < 100; i++) {  // 尝试生成多个位置，找到重叠最小的
-    const top = Math.random() * (viewportHeight - imgSize); // 确保图片在视口范围内
+    const top = Math.random() * (viewportHeight - imgSize)-100; // 确保图片在视口范围内
     const left = Math.random() * (viewportWidth - imgSize);  // 确保图片在视口范围内
 
     // 计算与现有图片的重叠面积
@@ -75,7 +75,7 @@ const fetchPhotos = (onComplete) => {
           img.onload = () => {
             const now = Date.now();
             const timeSinceLastDisplay = now - lastDisplayTime;
-            const delay = Math.max(500 - timeSinceLastDisplay, 0); // 保证间隔至少为0.5秒
+            const delay = Math.max(1000 - timeSinceLastDisplay, 0); // 保证间隔至少为0.5秒
 
             setTimeout(() => {
               // 找到重叠最小的位置
