@@ -1,4 +1,21 @@
 {
   "greeting": "亲爱的",
-  "name": "殊辰"
+  "name": "殊辰",
+  "greetingText": "生日快乐!",
+  "wishText": "May the js.prototypes always be with you! ;)",
+  "imagePath": "img/lydia2.png",
+  "text1": "It's your birthday!!! :D",
+  "text2": "That's what I was going to do.",
+  "text3": "But then I stopped.",
+  "text4": "准备",
+  "text4Adjective": "好了吗",
+  "text5Entry": "Because,",
+  "text5Content": "You are Special",
+  "smiley": ":)",
+  "bigTextPart1": "所",
+  "bigTextPart2": "以",
+  "wishHeading": "一个炫酷的生日快乐！",
+  "outroText": "就这些力，喜欢你喜欢~",
+  "replayText": "可以点击屏幕再看一遍",
+  "outroSmiley": ":)"
 }
