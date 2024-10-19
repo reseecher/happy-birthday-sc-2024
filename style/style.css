@@ -5,8 +5,12 @@ html {
 body, html {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* 确保页面不会滚动 */
-  height: 100%;     /* 设置页面高度为 100% */
+  width: 100vw;  /* 确保 body 占满整个视口宽度 */
+  height: 100vh; /* 确保 body 占满整个视口高度 */
+  overflow: hidden; /* 隐藏任何溢出的内容，防止出现滚动条 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .container {
