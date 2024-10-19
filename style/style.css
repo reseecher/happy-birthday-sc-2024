@@ -305,7 +305,7 @@ body {
 }
 
 .photo-gallery img {
-  max-width: 400px;         /* 控制照片的最大宽度 */
-  max-height: 400px;        /* 控制照片的最大高度 */
+  max-width: 300px;         /* 控制照片的最大宽度 */
+  max-height: 300px;        /* 控制照片的最大高度 */
   position: absolute;       /* 绝对定位，允许随机显示 */
 }

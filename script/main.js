@@ -24,8 +24,8 @@ const fetchData = () => {
 };
 
 const getRandomPosition = () => {
-  const top = Math.random() * 80 + 10; // 随机生成10%到90%的top值
-  const left = Math.random() * 80 + 10; // 随机生成10%到90%的left值
+  const top = Math.random() * 60 + 20; // 随机生成10%到90%的top值
+  const left = Math.random() * 60 + 20; // 随机生成10%到90%的left值
   return { top, left };
 };
 
@@ -77,7 +77,7 @@ const fetchPhotos = (onComplete) => {
           setTimeout(() => {
             photoGallery.innerHTML = ''; // 清空容器，移除所有图片
             onComplete(); // 所有照片显示完毕后，继续执行其他动画
-          }, 3000); // 等待 2 秒后消失
+          }, 5000); // 等待 2 秒后消失
         }
       };
 
