@@ -118,7 +118,7 @@ body {
 
 .six img {
   display: inline-block;
-  width: 800px;
+  width: 600px;
   height: auto;
 }
 
@@ -301,18 +301,12 @@ body {
 .photo-gallery {
   position: relative;       /* 相对定位，便于绝对定位的子元素居中 */
   width: 100%;
-  height: 100vh;            /* 设置高度为视口高度，保证居中 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 100vh;            /* 设置高度为视口高度，保证图片展示的区域足够大 */
 }
 
 .photo-gallery img {
-  max-width: 50%;           /* 控制照片的最大宽度 */
-  max-height: 80vh;         /* 控制照片的最大高度 */
-  position: absolute;       /* 绝对定位确保居中 */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  max-width: 30%;           /* 控制照片的最大宽度 */
+  max-height: 30%;          /* 控制照片的最大高度 */
+  position: absolute;       /* 绝对定位，允许随机位置展示 */
   opacity: 0;               /* 初始状态为不可见 */
 }

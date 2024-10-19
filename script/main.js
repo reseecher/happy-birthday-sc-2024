@@ -40,21 +40,25 @@ const fetchPhotos = (onComplete) => {
       // 创建一个 img 元素用于循环展示每张照片
       const img = document.createElement("img");
       img.classList.add("photo");
-      img.style.position = "absolute";  // 设置绝对定位，确保每张照片居中
-      img.style.top = "50%";
-      img.style.left = "50%";
-      img.style.transform = "translate(-50%, -50%)"; // 居中
+      img.style.position = "absolute";  // 设置绝对定位
       img.style.opacity = 0;  // 初始不可见
 
       // 插入图片元素到 photo-gallery 容器中
       photoGallery.appendChild(img);
 
-      // 依次展示每张照片，使用淡入淡出的效果
+      // 依次展示每张照片，使用随机位置和淡入淡出效果
       photoUrls.forEach((photoUrl, index) => {
+        const randomTop = Math.random() * 80;  // 随机 top 值，保证在可视区域内
+        const randomLeft = Math.random() * 80; // 随机 left 值
+
         tlPhotos
-          .set(img, { attr: { src: photoUrl } }) // 设置当前显示的图片路径
-          .to(img, 1, { opacity: 1, ease: Power2.easeInOut }) // 淡入
-          .to(img, 1, { opacity: 0, ease: Power2.easeInOut }, "+=0.7"); // 保持1秒后淡出
+          .set(img, {
+            attr: { src: photoUrl }, // 设置图片路径
+            top: `${randomTop}%`,    // 设置随机的 top 位置
+            left: `${randomLeft}%`   // 设置随机的 left 位置
+          })
+          .to(img, 0.7, { opacity: 1, ease: Power2.easeInOut }) // 淡入，时间缩短为0.7秒
+          .to(img, 0.7, { opacity: 0, ease: Power2.easeInOut }, "-=0.5"); // 淡出，重叠0.5秒
       });
     })
     .catch(error => {
@@ -107,7 +111,7 @@ const animationTimeline = () => {
         opacity: 0,
         y: 10
       },
-      "+=2.5"
+      "+=3.5"
     )
     .to(
       ".two",
@@ -130,12 +134,12 @@ const animationTimeline = () => {
         opacity: 0,
         y: 10
       },
-      "+=2"
+      "+=3"
     )
     .from(".idea-1", 0.7, ideaTextTrans)
-    .to(".idea-1", 0.7, ideaTextTransLeave, "+=1.5")
+    .to(".idea-1", 0.7, ideaTextTransLeave, "+=2.5")
     .from(".idea-2", 0.7, ideaTextTrans)
-    .to(".idea-2", 0.7, ideaTextTransLeave, "+=1.5")
+    .to(".idea-2", 0.7, ideaTextTransLeave, "+=2.5")
     .from(".idea-3", 0.7, ideaTextTrans)
     .to(".idea-3 strong", 0.5, {
       scale: 1.2,
@@ -143,7 +147,7 @@ const animationTimeline = () => {
       backgroundColor: "rgb(21, 161, 237)",
       color: "#fff"
     })
-    .to(".idea-3", 0.7, ideaTextTransLeave, "+=1.5")
+    .to(".idea-3", 0.7, ideaTextTransLeave, "+=2.5")
     .staggerFrom(
       ".idea-6 span",
       0.8,
