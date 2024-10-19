@@ -7,20 +7,17 @@ body, html {
   padding: 0;
   width: 100vw;  /* 确保 body 占满整个视口宽度 */
   height: 100vh; /* 确保 body 占满整个视口高度 */
-  overflow: hidden; /* 隐藏任何溢出的内容，防止出现滚动条 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  overflow: hidden; /* 隐藏任何溢出，防止出现滚动条 */
 }
 
 .container {
-  height: 100vh;
-  width: 100vw;  /* 修改为 100vw，确保宽度与视口宽度一致 */
-  margin: 0;     /* 去掉 auto，避免不必要的居中效果 */
+  height: 100vh;   /* 视口高度 */
+  width: 100vw;    /* 视口宽度 */
+  margin: 0;       /* 去掉 auto，确保没有多余的居中边距 */
   text-align: center;
   visibility: hidden;
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* 防止溢出内容 */
 }
 
 .container div.six {
