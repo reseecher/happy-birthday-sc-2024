@@ -169,9 +169,9 @@ const animationTimeline = () => {
       y: 30,
       zIndex: "-1"
     })
-    .add(() => {
-      fetchPhotos();
-    }, "+=1")
+    // .add(() => {
+    //   fetchPhotos();
+    // }, "+=1")
     .from(".three", 0.7, {
       opacity: 0,
       y: 10
