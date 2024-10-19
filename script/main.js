@@ -63,7 +63,11 @@ const fetchPhotos = (onComplete) => {
             }, 2000); // 照片显示 2 秒
           });
         } else {
-          onComplete(); // 所有照片展示完毕后，继续执行其他动画
+          // 清空最后一张图片，确保它消失
+          setTimeout(() => {
+            photoGallery.innerHTML = ''; // 清空容器，移除最后一张图片
+            onComplete(); // 所有照片显示完毕后，继续执行其他动画
+          }, 500); // 最后一张图片显示 2 秒后消失
         }
       };
 
