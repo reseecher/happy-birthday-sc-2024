@@ -28,8 +28,8 @@ const generateOptimalPosition = (existingPositions, imgSize, viewportWidth, view
   let smallestOverlap = Infinity;
 
   for (let i = 0; i < 100; i++) {  // 尝试生成多个位置，找到重叠最小的
-    const top = Math.random() * (viewportHeight - imgSize); // 确保图片在视口范围内
-    const left = Math.random() * (viewportWidth - imgSize);  // 确保图片在视口范围内
+    const top = (0.1+Math.random()*0.8) * (viewportHeight - imgSize); // 确保图片在视口范围内
+    const left =(0.1+Math.random()*0.8) * (viewportWidth - imgSize);  // 确保图片在视口范围内
 
     // 计算与现有图片的重叠面积
     let totalOverlap = 0;
@@ -58,7 +58,7 @@ const fetchPhotos = (onComplete) => {
       const photoGallery = document.querySelector(".photo-gallery"); // 照片展示容器
       const viewportWidth = window.innerWidth; // 视口宽度
       const viewportHeight = window.innerHeight; // 视口高度
-      const imgSize = 240; // 图片大小固定为200x200
+      const imgSize = 260; // 图片大小固定为200x200
 
       // 清空容器，避免重复
       photoGallery.innerHTML = "";
@@ -253,7 +253,7 @@ const animationTimeline = () => {
       "-=2"
     )
     .from(".hat", 0.5, {
-      x: -100,
+      x: -50,
       y: 350,
       rotation: -180,
       opacity: 0
