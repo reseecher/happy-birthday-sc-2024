@@ -23,20 +23,19 @@ const fetchData = () => {
     });
 };
 
-// 随机生成位置并计算重叠面积最小的区域
-const generateOptimalPosition = (existingPositions, imgWidth, imgHeight, viewportWidth, viewportHeight) => {
+const generateOptimalPosition = (existingPositions, imgSize, viewportWidth, viewportHeight) => {
   let bestPosition = null;
   let smallestOverlap = Infinity;
 
   for (let i = 0; i < 100; i++) {  // 尝试生成多个位置，找到重叠最小的
-    const top = Math.random() * (viewportHeight - imgHeight); // 确保图片在视口范围内
-    const left = Math.random() * (viewportWidth - imgWidth);  // 确保图片在视口范围内
+    const top = Math.random() * (viewportHeight - imgSize); // 确保图片在视口范围内
+    const left = Math.random() * (viewportWidth - imgSize);  // 确保图片在视口范围内
 
     // 计算与现有图片的重叠面积
     let totalOverlap = 0;
     for (let pos of existingPositions) {
-      const dx = Math.max(0, Math.min(pos.left + pos.width, left + imgWidth) - Math.max(pos.left, left));
-      const dy = Math.max(0, Math.min(pos.top + pos.height, top + imgHeight) - Math.max(pos.top, top));
+      const dx = Math.max(0, Math.min(pos.left + imgSize, left + imgSize) - Math.max(pos.left, left));
+      const dy = Math.max(0, Math.min(pos.top + imgSize, top + imgSize) - Math.max(pos.top, top));
       totalOverlap += dx * dy;  // 重叠面积
     }
 
@@ -59,6 +58,7 @@ const fetchPhotos = (onComplete) => {
       const photoGallery = document.querySelector(".photo-gallery"); // 照片展示容器
       const viewportWidth = window.innerWidth; // 视口宽度
       const viewportHeight = window.innerHeight; // 视口高度
+      const imgSize = 200; // 图片大小固定为200x200
 
       // 清空容器，避免重复
       photoGallery.innerHTML = "";
@@ -78,22 +78,16 @@ const fetchPhotos = (onComplete) => {
             const delay = Math.max(500 - timeSinceLastDisplay, 0); // 保证间隔至少为0.5秒
 
             setTimeout(() => {
-              // 获取图片的原始宽高
-              const imgWidth = img.naturalWidth;
-              const imgHeight = img.naturalHeight;
-
-              // 限制图片大小，但保持长宽比
-              img.style.maxWidth = '300px';
-              img.style.maxHeight = '300px';
-              
               // 找到重叠最小的位置
-              const { top, left } = generateOptimalPosition(existingPositions, imgWidth, imgHeight, viewportWidth, viewportHeight);
-              existingPositions.push({ top, left, width: imgWidth, height: imgHeight }); // 记录图片的位置和尺寸
+              const { top, left } = generateOptimalPosition(existingPositions, imgSize, viewportWidth, viewportHeight);
+              existingPositions.push({ top, left, width: imgSize, height: imgSize }); // 记录图片的位置和尺寸
 
               img.classList.add("photo");
               img.style.position = "absolute";
-              img.style.top = `${top}px`; // 使用像素单位，保持图片原始大小
+              img.style.top = `${top}px`; // 使用像素单位，固定大小为200px
               img.style.left = `${left}px`;
+              img.style.width = `${imgSize}px`; // 固定宽度200px
+              img.style.height = `${imgSize}px`; // 固定高度200px
               img.style.objectFit = "contain"; // 保持长宽比
 
               // 将图片插入到 photo-gallery 容器中
