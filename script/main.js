@@ -54,8 +54,13 @@ const fetchPhotos = (onComplete) => {
 
           // 设定时间，照片显示 2 秒后消失
           setTimeout(() => {
-            showNextPhoto(); // 递归调用，显示下一张照片
-          }, 500); // 2秒后切换照片
+            img.style.opacity = 0; // 开始淡出
+
+            // 在 1 秒的淡出后，展示下一张照片
+            setTimeout(() => {
+              showNextPhoto(); // 递归调用，显示下一张照片
+            }, 1000); // 1秒的淡出时间
+          }, 2000); // 照片显示 2 秒后淡出
         } else {
           onComplete(); // 所有照片显示完毕后，继续执行其他动画
         }
@@ -130,7 +135,7 @@ const animationTimeline = () => {
         tl.resume(); // 照片展示结束后恢复动画时间线
       });
       tl.pause(); // 在照片展示期间暂停时间线
-    }, "+=1")
+    }, "+=0.0")
     .from(".three", 0.7, {
       opacity: 0,
       y: 10
