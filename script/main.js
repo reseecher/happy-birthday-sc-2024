@@ -44,48 +44,44 @@ const preloadImages = (photoUrls, callback) => {
   });
 };
 
+// 随机生成位置
+const getRandomPosition = () => {
+  const top = Math.random() * 80 + 10; // 随机生成10%到90%的top值
+  const left = Math.random() * 80 + 10; // 随机生成10%到90%的left值
+  return { top, left };
+};
+
 // 读取并展示照片
 const fetchPhotos = (onComplete) => {
   fetch("photos.json") // 从 photos.json 文件中获取照片列表
     .then(response => response.json())
     .then(data => {
       const photoUrls = data.photos; // 照片列表
+      const photoGallery = document.querySelector(".photo-gallery"); // 照片展示容器
+
+      // 清空容器，避免重复
+      photoGallery.innerHTML = "";
 
       // 开始异步预加载图片，同时继续执行其他动画
       preloadImages(photoUrls, () => {
-        let currentIndex = 0; // 当前显示的照片索引
-        const photoGallery = document.querySelector(".photo-gallery"); // 照片展示容器
+        // 遍历所有图片，随机显示到屏幕的某个位置
+        preloadedImages.forEach((img) => {
+          const { top, left } = getRandomPosition();
+          img.classList.add("photo");
+          img.style.position = "absolute";
+          img.style.top = `${top}%`; // 随机位置
+          img.style.left = `${left}%`;
+          img.style.transform = "translate(-50%, -50%)"; // 确保居中
 
-        const showNextPhoto = () => {
-          if (currentIndex < preloadedImages.length) {
-            const img = preloadedImages[currentIndex];
-            img.classList.add("photo");
-            img.style.position = "absolute";
-            img.style.top = "50%";
-            img.style.left = "50%";
-            img.style.transform = "translate(-50%, -50%)"; // 确保居中
+          // 将图片插入到 photo-gallery 容器中
+          photoGallery.appendChild(img);
+        });
 
-            // 将图片插入到 photo-gallery 容器中
-            photoGallery.innerHTML = ''; // 移除之前的图片
-            photoGallery.appendChild(img);
-
-            currentIndex++; // 准备展示下一张照片
-
-            // 2 秒后显示下一张照片
-            setTimeout(() => {
-              showNextPhoto(); // 递归调用，显示下一张照片
-            }, 500); // 照片显示 2 秒
-          } else {
-            // 清空最后一张图片，确保它消失
-            setTimeout(() => {
-              photoGallery.innerHTML = ''; // 清空容器，移除最后一张图片
-              onComplete(); // 所有照片显示完毕后，继续执行其他动画
-            }, 500); // 最后一张图片显示 2 秒后消失
-          }
-        };
-
-        // 开始展示第一张照片
-        showNextPhoto();
+        // 所有图片显示完后，等待 2 秒再消失
+        setTimeout(() => {
+          photoGallery.innerHTML = ''; // 清空容器，移除所有图片
+          onComplete(); // 所有照片显示完毕后，继续执行其他动画
+        }, 2000); // 等待 2 秒后消失
       });
     })
     .catch(error => {
