@@ -24,7 +24,7 @@ const fetchData = () => {
 };
 
 // 新增函数：读取照片并依次展示
-const fetchPhotos = () => {
+const fetchPhotos = (onComplete) => {
   fetch("photos.json") // 从 photos.json 文件中获取照片列表
     .then(response => response.json())
     .then(data => {
@@ -34,11 +34,11 @@ const fetchPhotos = () => {
       // 清空照片容器，避免重复添加
       photoGallery.innerHTML = "";
 
-      // 使用 GSAP 时间线来控制照片的依次展示
-      const tlPhotos = new TimelineMax();
+      const tlPhotos = new TimelineMax({
+        onComplete: onComplete // 当所有照片展示完成后，继续后续动画
+      });
 
       photoUrls.forEach((photoUrl, index) => {
-        // 创建图片元素
         const img = document.createElement("img");
         img.src = photoUrl;
         img.classList.add("photo");
@@ -49,11 +49,11 @@ const fetchPhotos = () => {
         // 将图片元素添加到照片容器中
         photoGallery.appendChild(img);
 
-        // 将动画添加到时间线
+        // 将动画添加到照片展示时间线
         tlPhotos.to(img, 0.5, {
           opacity: 1,       // 渐显
           ease: Power2.easeInOut
-        }, "+=0.5"); // 每张照片之间间隔 0.5 秒
+        }, "+=1"); // 每张照片之间间隔 1 秒
       });
     })
     .catch(error => {
@@ -118,7 +118,10 @@ const animationTimeline = () => {
       "-=1"
     )
     .add(() => {
-      fetchPhotos();
+      fetchPhotos(() => {
+        tl.resume(); // 照片展示结束后恢复动画时间线
+      });
+      tl.pause(); // 在照片展示期间暂停时间线
     }, "+=1")
     .from(".three", 0.7, {
       opacity: 0,
