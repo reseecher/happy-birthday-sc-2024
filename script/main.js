@@ -23,37 +23,38 @@ const fetchData = () => {
     });
 };
 
-// 新增函数：读取照片并依次展示
 const fetchPhotos = (onComplete) => {
   fetch("photos.json") // 从 photos.json 文件中获取照片列表
     .then(response => response.json())
     .then(data => {
-      const photoGallery = document.querySelector(".photo-gallery"); // 获取照片展示容器
+      const photoGallery = document.querySelector(".photo-gallery"); // 照片展示容器
       const photoUrls = data.photos; // 照片列表
 
-      // 清空照片容器，避免重复添加
+      // 清空容器，避免重复
       photoGallery.innerHTML = "";
 
       const tlPhotos = new TimelineMax({
-        onComplete: onComplete // 当所有照片展示完成后，继续后续动画
+        onComplete: onComplete // 照片展示完毕后继续后续动画
       });
 
+      // 创建一个 img 元素用于循环展示每张照片
+      const img = document.createElement("img");
+      img.classList.add("photo");
+      img.style.position = "absolute";  // 设置绝对定位，确保每张照片居中
+      img.style.top = "50%";
+      img.style.left = "50%";
+      img.style.transform = "translate(-50%, -50%)"; // 居中
+      img.style.opacity = 0;  // 初始不可见
+
+      // 插入图片元素到 photo-gallery 容器中
+      photoGallery.appendChild(img);
+
+      // 依次展示每张照片，使用淡入淡出的效果
       photoUrls.forEach((photoUrl, index) => {
-        const img = document.createElement("img");
-        img.src = photoUrl;
-        img.classList.add("photo");
-
-        // 初始状态设置为不可见
-        img.style.opacity = 0;
-
-        // 将图片元素添加到照片容器中
-        photoGallery.appendChild(img);
-
-        // 将动画添加到照片展示时间线
-        tlPhotos.to(img, 0.5, {
-          opacity: 1,       // 渐显
-          ease: Power2.easeInOut
-        }, "+=1"); // 每张照片之间间隔 1 秒
+        tlPhotos
+          .set(img, { attr: { src: photoUrl } }) // 设置当前显示的图片路径
+          .to(img, 1, { opacity: 1, ease: Power2.easeInOut }) // 淡入
+          .to(img, 1, { opacity: 0, ease: Power2.easeInOut }, "+=1"); // 保持1秒后淡出
       });
     })
     .catch(error => {
