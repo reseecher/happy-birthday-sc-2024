@@ -23,10 +23,30 @@ const fetchData = () => {
     });
 };
 
-const getRandomPosition = () => {
-  const top = Math.random() * 60 + 20; // 随机生成10%到90%的top值
-  const left = Math.random() * 60 + 20; // 随机生成10%到90%的left值
-  return { top, left };
+const generateNonOverlappingPosition = (existingPositions, imgWidth, imgHeight) => {
+  let position;
+  let isOverlapping;
+
+  do {
+    isOverlapping = false;
+    const top = Math.random() * (90 - imgHeight) + 5;  // 保证不超出视口范围
+    const left = Math.random() * (90 - imgWidth) + 5;  // 保证不超出视口范围
+    position = { top, left };
+
+    // 检查新生成的位置是否与现有图片的位置重叠
+    for (let i = 0; i < existingPositions.length; i++) {
+      const existingPos = existingPositions[i];
+      const dx = Math.abs(existingPos.left - left);
+      const dy = Math.abs(existingPos.top - top);
+
+      if (dx < imgWidth && dy < imgHeight) {
+        isOverlapping = true;
+        break;  // 位置重叠，重新生成位置
+      }
+    }
+  } while (isOverlapping);  // 如果重叠，则继续生成位置
+
+  return position;
 };
 
 // 读取并展示照片
@@ -42,24 +62,31 @@ const fetchPhotos = (onComplete) => {
 
       let currentIndex = 0; // 当前显示的照片索引
       let lastDisplayTime = 0; // 记录最后一张照片展示的时间
+      const imgWidth = 15; // 定义图片的宽度百分比 (15% of viewport)
+      const imgHeight = 15; // 定义图片的高度百分比 (15% of viewport)
+      const existingPositions = []; // 用于存储已使用的位置
 
       const showNextPhoto = () => {
         if (currentIndex < photoUrls.length) {
           const img = new Image();
           img.src = photoUrls[currentIndex];
-          
+
           img.onload = () => {
             const now = Date.now();
             const timeSinceLastDisplay = now - lastDisplayTime;
-
-            const delay = Math.max(500 - timeSinceLastDisplay, 0); // 保证间隔至少为0.5秒
+            const delay = Math.max(1000 - timeSinceLastDisplay, 0); // 保证间隔至少为0.5秒
 
             setTimeout(() => {
-              const { top, left } = getRandomPosition();
+              // 生成不重叠的随机位置
+              const { top, left } = generateNonOverlappingPosition(existingPositions, imgWidth, imgHeight);
+              existingPositions.push({ top, left });
+
               img.classList.add("photo");
               img.style.position = "absolute";
-              img.style.top = `${top}%`; // 随机位置
-              img.style.left = `${left}%`;
+              img.style.top = `${top}%`; // 随机生成的top位置
+              img.style.left = `${left}%`; // 随机生成的left位置
+              img.style.width = `${imgWidth}vw`; // 固定宽度为15%视口宽度
+              img.style.height = `${imgHeight}vh`; // 固定高度为15%视口高度
               img.style.transform = "translate(-50%, -50%)"; // 确保居中
 
               // 将图片插入到 photo-gallery 容器中
@@ -77,7 +104,7 @@ const fetchPhotos = (onComplete) => {
           setTimeout(() => {
             photoGallery.innerHTML = ''; // 清空容器，移除所有图片
             onComplete(); // 所有照片显示完毕后，继续执行其他动画
-          }, 5000); // 等待 2 秒后消失
+          }, 2000); // 等待 2 秒后消失
         }
       };
 
@@ -88,7 +115,6 @@ const fetchPhotos = (onComplete) => {
       console.error("Error loading photos:", error);
     });
 };
-
 
 // Animation Timeline
 const animationTimeline = () => {
@@ -145,12 +171,6 @@ const animationTimeline = () => {
       },
       "-=1"
     )
-    .add(() => {
-      fetchPhotos(() => {
-        tl.resume(); // 照片展示结束后恢复动画时间线
-      });
-      tl.pause(); // 在照片展示期间暂停时间线
-    }, "+=0.0")
     .from(".three", 0.7, {
       opacity: 0,
       y: 10
@@ -200,6 +220,12 @@ const animationTimeline = () => {
       0.2,
       "+=1"
     )
+    .add(() => {
+      fetchPhotos(() => {
+        tl.resume(); // 照片展示结束后恢复动画时间线
+      });
+      tl.pause(); // 在照片展示期间暂停时间线
+    }, "+=0.0")
     .staggerFromTo(
       ".baloons img",
       2.5,
